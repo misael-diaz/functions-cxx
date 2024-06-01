@@ -40,18 +40,18 @@ struct Item {
 	void calcShippingCost();
 };
 
-double prompt(void);
+double prompt_item_weight(void);
 
 int main ()
 {
-	double weight = prompt();
+	double weight = prompt_item_weight();
 	Item item(weight);
 	item.calcShippingCost();
 	item.logShippingCost();
 	return 0;
 }
 
-double prompt (void)
+double prompt_item_weight (void)
 {
 	double weight = 0;
 	printf("input item weight:");
