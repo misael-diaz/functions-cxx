@@ -18,6 +18,7 @@
 //
 
 #include <cstdio>
+#include <cstdlib>
 
 #define WEIGHT_LIGHT 10.0
 #define WEIGHT_BASIC 30.0
@@ -36,25 +37,54 @@ struct Item {
 	double weight;
 	double shippingCost;
 	Item(double item_weight);
+	void *operator new(size_t size);
+	void operator delete(void *vp);
 	void logShippingCost() const;
 	void calcShippingCost();
 };
 
-double prompt_item_weight(void);
+struct ShoppingCart {
+	int num_items = 0;
+	Item **items = NULL;
+	double totalShippingCost = 0;
+	ShoppingCart(int num_items, Item **items);
+	void *operator new(size_t size);
+	void operator delete(void *vp);
+	void logTotalShippingCost() const;
+	void calcTotalShippingCost();
+	void calcShippingCostItems();
+	void promptWeightItems();
+};
+
+int prompt_num_items(void);
 
 int main ()
 {
-	double weight = prompt_item_weight();
-	Item item(weight);
-	item.calcShippingCost();
-	item.logShippingCost();
+	int num_items = prompt_num_items();
+	size_t const size = num_items * sizeof(Item*);
+	Item **items = (Item**) malloc(size);
+	ShoppingCart *cart = new ShoppingCart(num_items, items);
+	cart->promptWeightItems();
+	cart->calcShippingCostItems();
+	cart->calcTotalShippingCost();
+	cart->logTotalShippingCost();
+	delete(cart);
+	cart = NULL;
 	return 0;
 }
 
-double prompt_item_weight (void)
+int prompt_num_items(void)
+{
+	int num = 0;
+	printf("input the number of items:");
+	scanf("%d", &num);
+	return num;
+}
+
+static double prompt_item_weight (int tag)
 {
 	double weight = 0;
-	printf("input item weight:");
+	printf("input the weight of item %d:", tag);
 	scanf("%lf", &weight);
 	return weight;
 }
@@ -62,6 +92,17 @@ double prompt_item_weight (void)
 Item::Item(double item_weight): weight(item_weight)
 {
 	return;
+}
+
+void *Item::operator new (size_t size)
+{
+	return malloc(size);
+}
+
+void Item::operator delete (void *vp)
+{
+	free(vp);
+	vp = NULL;
 }
 
 void Item::calcShippingCost()
@@ -93,6 +134,60 @@ void Item::calcShippingCost()
 void Item::logShippingCost() const
 {
 	printf("shipping-cost: $%.2f\n", this->shippingCost);
+}
+
+ShoppingCart::ShoppingCart (int num_items, Item **items) : num_items(num_items)
+{
+	this->items = items;
+}
+
+void *ShoppingCart::operator new (size_t size)
+{
+	return malloc(size);
+}
+
+void ShoppingCart::operator delete (void *vp)
+{
+	ShoppingCart *p = (ShoppingCart*) vp;
+	for (int i = 0; i != p->num_items; ++i) {
+		free(p->items[i]);
+		p->items[i] = NULL;
+	}
+	free(p->items);
+	p->items = NULL;
+	free(p);
+	p = NULL;
+	vp = NULL;
+}
+
+void ShoppingCart::promptWeightItems ()
+{
+	for (int i = 0; i != this->num_items; ++i) {
+		double weight = prompt_item_weight(i);
+		this->items[i] = new Item(weight);
+	}
+}
+
+void ShoppingCart::calcShippingCostItems ()
+{
+	for (int i = 0; i != this->num_items; ++i) {
+		Item *item = this->items[i];
+		item->calcShippingCost();
+	}
+}
+
+void ShoppingCart::calcTotalShippingCost ()
+{
+	this->totalShippingCost = 0;
+	for (int i = 0; i != this->num_items; ++i) {
+		Item *item = this->items[i];
+		this->totalShippingCost += item->shippingCost;
+	}
+}
+
+void ShoppingCart::logTotalShippingCost () const
+{
+	printf("total shipping-cost: $%.2f\n", this->totalShippingCost);
 }
 
 /*
