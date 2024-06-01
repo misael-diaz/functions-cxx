@@ -1,8 +1,8 @@
 #!/usr/bin/make
 #
-# Functions				June 01, 2024
+# Functions					June 01, 2024
 #
-# source: src/Makefile
+# source: src/cart/Makefile
 # author: @misael-diaz
 #
 # Synopsis:
@@ -14,12 +14,15 @@
 # (at your option) any later version.
 #
 
-all: arrays carts
+include make-inc
 
-arrays:
-	@$(MAKE) -C array
-carts:
-	@$(MAKE) -C cart
+all: $(CART_BIN)
+
+$(CART_BIN): $(CART_OBJ)
+	$(CXX) $(CXXOPT) $(CART_OBJ) -o $(CART_BIN)
+
+$(CART_OBJ): $(HEADERS) $(CART_CXX)
+	$(CXX) $(INC) $(CXXOPT) -c $(CART_CXX) -o $(CART_OBJ)
+
 clean:
-	@$(MAKE) -C array clean
-	@$(MAKE) -C cart clean
+	/bin/rm -f *.obj *.bin

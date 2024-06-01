@@ -1,12 +1,11 @@
-#!/usr/bin/make
 #
-# Functions				June 01, 2024
+# Functions					June 01, 2024
 #
-# source: src/Makefile
+# source: src/cart/make-inc
 # author: @misael-diaz
 #
 # Synopsis:
-# Defines the Makefile for building the program with GNU make.
+# Defines the include file for building the program with GNU make.
 #
 # Copyright (c) 2024 Misael Díaz-Maldonado
 # This file is released under the GNU General Public License as published
@@ -14,12 +13,8 @@
 # (at your option) any later version.
 #
 
-all: arrays carts
-
-arrays:
-	@$(MAKE) -C array
-carts:
-	@$(MAKE) -C cart
-clean:
-	@$(MAKE) -C array clean
-	@$(MAKE) -C cart clean
+INC = -I../../include
+HEADERS =
+CART_CXX = Cart.cpp
+CART_OBJ = Cart.obj
+CART_BIN = Cart.bin
