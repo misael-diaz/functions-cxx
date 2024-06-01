@@ -1,8 +1,8 @@
 #!/usr/bin/make
 #
-# Functions				June 01, 2024
+# Functions					June 01, 2024
 #
-# source: src/Makefile
+# source: src/wage/Makefile
 # author: @misael-diaz
 #
 # Synopsis:
@@ -14,15 +14,15 @@
 # (at your option) any later version.
 #
 
-all: arrays carts wages
+include make-inc
 
-arrays:
-	@$(MAKE) -C array
-carts:
-	@$(MAKE) -C cart
-wages:
-	@$(MAKE) -C wage
+all: $(WAGE_BIN)
+
+$(WAGE_BIN): $(WAGE_OBJ)
+	$(CXX) $(CXXOPT) $(WAGE_OBJ) -o $(WAGE_BIN)
+
+$(WAGE_OBJ): $(HEADERS) $(WAGE_CXX)
+	$(CXX) $(INC) $(CXXOPT) -c $(WAGE_CXX) -o $(WAGE_OBJ)
+
 clean:
-	@$(MAKE) -C array clean
-	@$(MAKE) -C cart clean
-	@$(MAKE) -C wage clean
+	/bin/rm -f *.obj *.bin
